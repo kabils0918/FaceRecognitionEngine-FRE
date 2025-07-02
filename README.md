@@ -185,8 +185,8 @@ This project is licensed under the **MIT License**.
 
 If you have any questions or need help, feel free to connect with me:
 
-🔗 LinkedIn – Kabilan Selvasekar
 
+[🔗 LinkedIn – Kabilan Selvasekar](https://www.linkedin.com/in/kabilan-selvasekar/)
 ---
 
 **Made for smart surveillance.**
