@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Surveillance Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #eee;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: #00bcd4;
+      margin-bottom: 20px;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 1200px;
+      box-shadow: 0 0 15px rgba(0, 188, 212, 0.3);
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #444;
+      text-align: left;
+    }
+    th {
+      background-color: #222;
+      color: #00bcd4;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    tr:nth-child(even) {
+      background-color: #1a1a1a;
+    }
+    tr:hover {
+      background-color: #2a2a2a;
+    }
+    .terrorist {
+      color: #ff4d4d;
+      font-weight: bold;
+      animation: pulse 1s infinite alternate;
+    }
+    .civilian {
+      color: #76ff03;
+    }
+    @keyframes pulse {
+      from { transform: scale(1); opacity: 1; }
+      to { transform: scale(1.03); opacity: 0.8; }
+    }
+    img {
+      max-width: 100px;
+      height: auto;
+      border-radius: 4px;
+      transition: transform 0.3s ease;
+    }
+    img:hover {
+      transform: scale(1.5);
+      z-index: 10;
+      box-shadow: 0 0 20px rgba(0, 188, 212, 0.7);
+    }
+    a {
+      color: #00bcd4;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .download-btn {
+      color: white;
+      background: #28a745;
+      padding: 12px 25px;
+      border-radius: 8px;
+      margin-top: 30px;
+      display: inline-block;
+      font-size: 1.1em;
+      transition: background-color 0.3s ease;
+    }
+    .download-btn:hover {
+      background-color: #218838;
+      text-decoration: none;
+    }
+    #searchInput {
+      padding: 10px;
+      margin-bottom: 20px;
+      width: 60%;
+      max-width: 400px;
+      font-size: 1em;
+      border: 1px solid #00bcd4;
+      border-radius: 5px;
+      background-color: #333;
+      color: #eee;
+    }
+    #detectionChart {
+      background-color: #222;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 188, 212, 0.3);
+      margin: 0 auto;
+      max-width: 800px;
+    }
+    .last-detected {
+      background-color: #1a1a1a;
+      padding: 20px;
+      margin: 30px auto;
+      border-radius: 10px;
+      max-width: 500px;
+      border: 2px solid #00bcd4;
+      box-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
+    }
+    .last-detected p {
+      margin: 8px 0;
+      font-size: 1.1em;
+    }
+    .last-detected strong {
+      color: #fff;
+    }
+    .last-detected img {
+      max-width: 250px;
+      height: auto;
+      border: 2px solid #555;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    .clear-btn {
+      padding: 10px 20px;
+      font-size: 1.1em;
+      margin-left: 10px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .clear-btn:hover {
+      background-color: #c82333;
+    }
+    #chartContainer {
+      padding: 20px;
+      background-color: #222;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 188, 212, 0.3);
+      margin: 0 auto;
+      max-width: 800px;
+      height: 400px; /* ← Add this */
+    }
+
+  </style>
+</head>
+<body>
+  <h1>🛡️ Real-Time Surveillance Dashboard</h1>
+  <p>Last updated: <strong style="color: #00bcd4;">{{ detections[-1][0] if detections else "No Data" }}</strong></p>
+  <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by ID or Category..." />
+  <form method="POST" action="/clear_all" style="display: inline-block;">
+    <button type="submit" class="clear-btn">🗑️ Clear All Detections</button>
+  </form>
+  <table id="detectionTable">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>ID</th>
+        <th>Category</th>
+        <th>Image</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for row in detections | reverse %}
+      {% if row|length >= 5 %}
+        <tr {% if loop.first and row[3]|lower == 'terrorist' %}style="background-color: #400;"{% elif loop.first %}style="background-color: #333;"{% endif %}>
+          <td>{{ row[0] }}</td>
+          <td>{{ row[1] }}</td>
+          <td class="{% if row[3]|lower == 'terrorist' %}terrorist{% else %}civilian{% endif %}">{{ row[3] }}</td>
+          <td>
+            <a href="{{ url_for('static', filename=row[4]) }}" target="_blank">
+              <img src="{{ url_for('static', filename=row[4]) }}" alt="snapshot" />
+            </a>
+          </td>
+
+        </tr>
+      {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+
+  {% if latest %}
+  <div class="last-detected">
+    <h2>🧠 Last Detected Person</h2>
+    <p><strong>Timestamp:</strong> <span style="color: #00bcd4;">{{ latest[0] }}</span></p>
+    <p><strong>ID:</strong> {{ latest[1] }}</p>
+    <p><strong>Category:</strong>
+      <span class="{% if latest[3]|lower == 'terrorist' %}terrorist{% else %}civilian{% endif %}">{{ latest[3] }}</span>
+    </p>
+    <img src="{{ url_for('static', filename=latest[4]) }}" alt="detected snapshot" style="margin-top:10px;">
+  </div>
+  {% endif %}
+
+  <a href="/download" class="download-btn">⬇️ Download Log as CSV</a>
+
+<div id="chartContainer" style="display: none; padding: 20px; background-color: #222; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 188, 212, 0.3); margin: 0 auto; max-width: 800px;">
+  <canvas id="detectionChart" height="400"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+  function filterTable() {
+    let input = document.getElementById("searchInput");
+    let filter = input.value.toLowerCase();
+    let rows = document.getElementById("detectionTable").getElementsByTagName("tr");
+    for (let i = 1; i < rows.length; i++) {
+      let idCell = rows[i].getElementsByTagName("td")[1];
+      let catCell = rows[i].getElementsByTagName("td")[2];
+      if (idCell && catCell) {
+        let idText = idCell.textContent.toLowerCase();
+        let catText = catCell.textContent.toLowerCase();
+        rows[i].style.display = (idText.includes(filter) || catText.includes(filter)) ? "" : "none";
+      }
+    }
+  }
+</script>
+</body>
+</html>

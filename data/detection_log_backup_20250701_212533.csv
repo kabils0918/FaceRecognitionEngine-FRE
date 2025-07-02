@@ -1,0 +1,4 @@
+Timestamp,Person_ID_Numeric,Person_Name_or_ID,Category,Image_Filename
+2025-07-01 20:13:02,1,1,Terrorist,captured_faces/Terrorist_Data/auto_capture_20250701-201302.jpg
+2025-07-01 20:13:10,1,1,Terrorist,captured_faces/Terrorist_Data/manual_capture_20250701-201310.jpg
+2025-07-01 20:13:46,1,1,Terrorist,captured_faces/Terrorist_Data/auto_capture_20250701-201346.jpg
