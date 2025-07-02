@@ -181,6 +181,12 @@ Visit: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 This project is licensed under the **MIT License**.
 
+📬 Contact Me
+
+If you have any questions or need help, feel free to connect with me:
+
+🔗 LinkedIn – Kabilan Selvasekar
+
 ---
 
 **Made for smart surveillance.**
